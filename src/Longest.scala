@@ -5,21 +5,25 @@ object Longest {
     val (smaller, bigger) = (lower - 1, upper + 1)
 
     def next(string: String): Option[Candidate] =
-      if (smaller >= 0 && bigger <= string.length - 1 && string(smaller) == string(bigger)) {
+      if (smaller >= 0 && bigger <= string.length && string(smaller) == string(bigger - 1)) {
         Some(copy(lower = smaller, upper = bigger, chars = string(smaller) :: chars))
       }
       else {
         None
       }
 
-    def stringify: String = "%s%s".format(chars.mkString, chars.init.reverse.mkString)
+    def stringify: String = chars match {
+      case Nil => ""
+      case _ => "%s%s".format(chars.mkString, chars.init.reverse.mkString)
+    }
   }
 
   def main(args: Array[String]) = {
     val string = args(0)
-    val candidates = (string.zipWithIndex map {
-      case (char, index) => Candidate(index, index, char :: Nil)
-    }).toList
+    val (ones, zeros) = (string.zipWithIndex map {
+      case (char, index) => (Candidate(index, index + 1, char :: Nil), Candidate(index, index, Nil))
+    }).toList.unzip
+    val candidates = zeros ++ ones
     println(search(string, candidates, candidates.head))
     println(parSearch(string, candidates))
   }
